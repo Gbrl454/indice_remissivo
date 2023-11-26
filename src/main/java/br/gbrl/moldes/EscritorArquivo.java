@@ -1,13 +1,14 @@
-package br.gbrl;
+package br.gbrl.moldes;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MyFileWriter {
+public class EscritorArquivo {
     public static long run() {
         long init = System.nanoTime();
 
-        try (FileWriter writer = new FileWriter("MyFileWriter.txt")) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("indice.txt"))) {
             writer.write("1 - Seu conteúdo aqui.\n");
             writer.write("2 - Seu conteúdo aqui.\n");
             writer.write("3 - Seu conteúdo aqui.");

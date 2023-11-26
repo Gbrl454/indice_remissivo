@@ -1,4 +1,4 @@
-package br.gbrl;
+package br.gbrl.moldes;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

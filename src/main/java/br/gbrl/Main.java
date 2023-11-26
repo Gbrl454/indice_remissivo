@@ -1,42 +1,54 @@
 package br.gbrl;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Scanner;
+
 public class Main {
-    private static final int[] occ = new int[]{0, 0, 0, 0};
-
     public static void main(String[] args) {
-        int x=5;
-        for (int i = 0; i < x; i++) {
-            long m1 = MyFileWriter.run();
-            long m2 = EscritorArquivo.run();
-            long m3 = FileOutputStreamBufferedOutputStreamOutputStreamWriter.run();
-            long m4 = NIO.run();
+        long init = System.nanoTime();
 
-            System.out.println("m1 - " + m1);
-            System.out.println("m2 - " + m2);
-            System.out.println("m3 - " + m3);
-            System.out.println("m4 - " + m4);
-            System.out.println();
-            ocorrencia(menor(new long[]{m1, m2, m3, m4}));
-        }
-        System.out.println("m1 - "+(((double) occ[0]/x)*100)+"%");
-        System.out.println("m2 - "+(((double) occ[1]/x)*100)+"%");
-        System.out.println("m3 - "+(((double) occ[2]/x)*100)+"%");
-        System.out.println("m4 - "+(((double) occ[3]/x)*100)+"%");
-    }
+        Scanner sc = new Scanner(System.in);
 
-    private static void ocorrencia(int i) {
-        occ[i-1]++;
-    }
+        System.out.println("Arquivo de palavras chaves...");
+        String pathPalavrasChave = sc.next();
+        System.out.println("Arquivo de texto...");
+        String pathTexto = sc.next();
 
-    private static int menor(long[] vetor) {
-        long menorValor = vetor[0];
-        int m = 1;
-        for (int i = 1; i < vetor.length; i++) {
-            if (vetor[i] < menorValor) {
-                menorValor = vetor[i];
-                m = i + 1;
+        TabelaHash tabela = new TabelaHash(getPalavrasChave(pathPalavrasChave));
+
+        Path path = Paths.get(pathTexto);
+
+        int i = 1;
+        try {
+            for (String linha : Files.readAllLines(path)) {
+                String[] palavrasArray = linha.replaceAll("[^a-zA-Z\\s-]", "").split("\\s+");
+                if (palavrasArray.length > 0)
+                    tabela.add(palavrasArray, i++);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return m;
+
+        tabela.show();
+
+        System.out.println("Tempo de execução -> " + (System.nanoTime() - init) + " ns");
+    }
+
+    private static String[] getPalavrasChave(String pathPalavrasChave) {
+        String texto = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(pathPalavrasChave));
+            String linha;
+            while ((linha = bufferedReader.readLine()) != null)
+                texto += linha + " ";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return texto.split(" ");
     }
 }

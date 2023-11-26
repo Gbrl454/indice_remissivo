@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="indice_remissivo:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/indice_remissivo_jar</output-path>
+    <root id="archive" name="indice_remissivo_jar.jar">
+      <element id="module-output" name="indice_remissivo" />
+    </root>
+  </artifact>
+</component>
