@@ -26,6 +26,9 @@ public class No {
 
     @Override
     public String toString() {
-        return palavra + " " + linhas;
+        return palavra
+                + " " + linhas
+                // + " " + fatBal
+                ;
     }
 }

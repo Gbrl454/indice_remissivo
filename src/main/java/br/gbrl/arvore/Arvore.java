@@ -1,7 +1,9 @@
 package br.gbrl.arvore;
 
+import java.util.Objects;
+
 public class Arvore {
-    private No raiz;
+    public No raiz;
 
     public Arvore() {
         this.raiz = null;
@@ -12,10 +14,14 @@ public class Arvore {
         else add(palavra, linha, raiz);
     }
 
-    private void add(String palavra, int linha, No raiz) {
+    private boolean add(String palavra, int linha, No raiz) {
         if (palavra.compareTo(raiz.palavra) < 0) {
             if (raiz.esquerda == null) raiz.esquerda = new No(palavra, linha);
-            else add(palavra, linha, raiz.esquerda);
+            else if (add(palavra, linha, raiz.esquerda)) {
+                raiz.fatBal++;
+                raiz = balanciamento(raiz);
+                return raiz.fatBal != 0;
+            }
         }
 
         if (palavra.compareTo(raiz.palavra) == 0) {
@@ -24,8 +30,13 @@ public class Arvore {
 
         if (palavra.compareTo(raiz.palavra) > 0) {
             if (raiz.direita == null) raiz.direita = new No(palavra, linha);
-            else add(palavra, linha, raiz.direita);
+            else if (add(palavra, linha, raiz.direita)) {
+                raiz.fatBal--;
+                raiz = balanciamento(raiz);
+                return raiz.fatBal != 0;
+            }
         }
+        return true;
     }
 
     //  Se Fb = 2
@@ -38,16 +49,74 @@ public class Arvore {
     //          RES
     //      Se não
     //          RED
+    private No balanciamento(No raiz) {
+        if (raiz.fatBal == 2) {
+            if (raiz.esquerda.fatBal > 0) {
+                System.out.println("RDS");
+                return RDS(raiz);
+            } else {
+                System.out.println("RDD");
+                return RDD(raiz);
+            }
+        } else if (raiz.fatBal == -2) {
+            if (raiz.direita.fatBal <= 0) {
+                System.out.println("RES");
+                return RES(raiz);
+            } else {
+                System.out.println("RED");
+                return RED(raiz);
+            }
+        }
+        return raiz;
+    }
+
+    private No RDS(No raiz) {
+        No esquerda = raiz.esquerda;
+        raiz.esquerda = esquerda.direita;
+        esquerda.direita = raiz;
+        return esquerda;
+    }
+
+    private No RES(No raiz) {
+        No direita = raiz.direita;
+        raiz.direita = direita.esquerda;
+        direita.esquerda = raiz;
+        return direita;
+    }
+
+    private No RDD(No raiz) {
+        raiz.esquerda = RES(raiz.esquerda);
+        return RDS(raiz);
+    }
+
+    private No RED(No raiz) {
+        raiz.direita = RDS(raiz.direita);
+        return RES(raiz);
+    }
 
     //  RED = RDS + RES
     //  RDD = RES + RDS
 
-    private String min(No raiz) {
-        return (raiz.esquerda == null) ? raiz.palavra : min(raiz.esquerda);
+//    private String min(No raiz) {
+//        return (raiz.esquerda == null) ? raiz.palavra : min(raiz.esquerda);
+//    }
+//
+//    private String max(No raiz) {
+//        return (raiz.direita == null) ? raiz.palavra : max(raiz.direita);
+//    }
+
+    public boolean contains(String element) {
+        return raiz != null && contains(element, raiz);
     }
 
-    private String max(No raiz) {
-        return (raiz.direita == null) ? raiz.palavra : max(raiz.direita);
+    private boolean contains(String element, No raiz) {
+        if (Objects.equals(element, raiz.palavra)) return true;
+
+        if (element.compareTo(raiz.palavra) < 0) return raiz.esquerda != null && contains(element, raiz.esquerda);
+
+        if (element.compareTo(raiz.palavra) > 0) return raiz.direita != null && contains(element, raiz.direita);
+
+        return false;
     }
 
     public String show() {
