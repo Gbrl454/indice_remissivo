@@ -9,34 +9,53 @@ public class Arvore {
         this.raiz = null;
     }
 
+//    public void add(String palavra, int linha) {
+//        if (raiz == null) raiz = new No(palavra, linha);
+//        else raiz = add(palavra, linha, raiz);
+//    }
+
+//    private boolean add(String palavra, int linha, No raiz) {
+//        if (palavra.compareTo(raiz.palavra) < 0) {
+//            if (raiz.esquerda == null) raiz.esquerda = new No(palavra, linha);
+//            else if (add(palavra, linha, raiz.esquerda)) {
+//                raiz.fatBal++;
+//                raiz = balanciamento(raiz);
+//                return raiz.fatBal != 0;
+//            }
+//        }
+//
+//        if (palavra.compareTo(raiz.palavra) == 0) {
+//            raiz.setLinha(linha);
+//        }
+//
+//        if (palavra.compareTo(raiz.palavra) > 0) {
+//            if (raiz.direita == null) raiz.direita = new No(palavra, linha);
+//            else if (add(palavra, linha, raiz.direita)) {
+//                raiz.fatBal--;
+//                raiz = balanciamento(raiz);
+//                return raiz.fatBal != 0;
+//            }
+//        }
+//        return true;
+//    }
+
     public void add(String palavra, int linha) {
-        if (raiz == null) raiz = new No(palavra, linha);
-        else add(palavra, linha, raiz);
+        raiz = add(palavra, linha, raiz);
     }
 
-    private boolean add(String palavra, int linha, No raiz) {
+    private No add(String palavra, int linha, No raiz) {
+        if (raiz == null)
+            return new No(palavra, linha);
+
         if (palavra.compareTo(raiz.palavra) < 0) {
-            if (raiz.esquerda == null) raiz.esquerda = new No(palavra, linha);
-            else if (add(palavra, linha, raiz.esquerda)) {
-                raiz.fatBal++;
-                raiz = balanciamento(raiz);
-                return raiz.fatBal != 0;
-            }
-        }
+            raiz.esquerda = add(palavra, linha, raiz.esquerda);
+            raiz.fatBal++;
+        } else if (palavra.compareTo(raiz.palavra) > 0) {
+            raiz.direita = add(palavra, linha, raiz.direita);
+            raiz.fatBal--;
+        } else raiz.setLinha(linha);
 
-        if (palavra.compareTo(raiz.palavra) == 0) {
-            raiz.setLinha(linha);
-        }
-
-        if (palavra.compareTo(raiz.palavra) > 0) {
-            if (raiz.direita == null) raiz.direita = new No(palavra, linha);
-            else if (add(palavra, linha, raiz.direita)) {
-                raiz.fatBal--;
-                raiz = balanciamento(raiz);
-                return raiz.fatBal != 0;
-            }
-        }
-        return true;
+        return balanciamento(raiz);
     }
 
     //  Se Fb = 2
@@ -49,6 +68,7 @@ public class Arvore {
     //          RES
     //      Se não
     //          RED
+
     private No balanciamento(No raiz) {
         if (raiz.fatBal == 2) {
             if (raiz.esquerda.fatBal > 0) {
@@ -72,15 +92,27 @@ public class Arvore {
 
     private No RDS(No raiz) {
         No esquerda = raiz.esquerda;
-        raiz.esquerda = esquerda.direita;
+        No direitaEsquerda = esquerda.direita;
+
         esquerda.direita = raiz;
+        raiz.esquerda = direitaEsquerda;
+
+        raiz.reBalance();
+        esquerda.reBalance();
+
         return esquerda;
     }
 
     private No RES(No raiz) {
         No direita = raiz.direita;
-        raiz.direita = direita.esquerda;
+        No esquerdaDireita = direita.esquerda;
+
         direita.esquerda = raiz;
+        raiz.direita = esquerdaDireita;
+
+        raiz.reBalance();
+        direita.reBalance();
+
         return direita;
     }
 
