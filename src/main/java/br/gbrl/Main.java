@@ -7,12 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Normalizer;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         long init = System.nanoTime();
 
-//        Scanner sc = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
 //        System.out.println("Arquivo de palavras chaves...");
 //        String pathPalavrasChave = sc.next();
 //        System.out.println("Arquivo de texto...");
@@ -28,7 +29,7 @@ public class Main {
         int i = 1;
         try {
             for (String linha : Files.readAllLines(path)) {
-                String[] palavrasArray = clearText(linha).split("\\s+");
+                String[] palavrasArray = clearLine(linha);
                 if (palavrasArray.length > 0) tabela.add(palavrasArray, i++);
             }
         } catch (IOException e) {
@@ -36,12 +37,25 @@ public class Main {
         }
 
         tabela.show();
-        System.out.println("Tempo de execução -> " + (System.nanoTime() - init) + " ns");
+        double end = (System.nanoTime() - init);
+        System.out.println("Tempo de execução -> " +  end + " ns");
+        System.out.println("Tempo de execução -> " + String.format("%.3f", end / 10000000) + " ms");
+    }
+
+    private static String[] clearLine(String str) {
+        String[] palavras = clearText(str).split("\\s+");
+        String palavrasAux = "";
+
+        for (String palavra : palavras)
+            if (palavra.length() > 1 && Character.isLetter(palavra.charAt(0))) palavrasAux += palavra + ",";
+
+        return palavrasAux.split(",");
     }
 
     private static String clearText(String str) {
         return Normalizer.normalize(str, Normalizer.Form.NFD)
-                .replaceAll("[^\\p{ASCII}]", "").replaceAll("[,.]", "");
+                .replaceAll("[^\\p{ASCII}]", "")
+                .replaceAll("[,.!?;]", "");
     }
 
     private static String[] getPalavrasChave(String pathPalavrasChave) {

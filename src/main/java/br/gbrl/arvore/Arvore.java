@@ -40,22 +40,33 @@ public class Arvore {
 //    }
 
     public void add(String palavra, int linha) {
-        raiz = add(palavra, linha, raiz);
+        if (raiz == null) raiz = new No(palavra, linha);
+        else raiz = add(palavra, linha, raiz);
     }
 
-    private No add(String palavra, int linha, No raiz) {
-        if (raiz == null)
-            return new No(palavra, linha);
-
-        if (palavra.compareTo(raiz.palavra) < 0) {
-            raiz.esquerda = add(palavra, linha, raiz.esquerda);
-            raiz.fatBal++;
-        } else if (palavra.compareTo(raiz.palavra) > 0) {
-            raiz.direita = add(palavra, linha, raiz.direita);
-            raiz.fatBal--;
-        } else raiz.setLinha(linha);
-
-        return balanciamento(raiz);
+    private No add(String palavra, int linha, No no) {
+        if (palavra.compareTo((no.palavra)) < 0) {
+            if (no.esquerda == null) {
+                no.esquerda = new No(palavra, linha);
+                no.fatBal++;
+            } else {
+                no.esquerda = add(palavra, linha, no.esquerda);
+                if (no.overbalance) no.reBalance();
+            }
+        } else if (palavra.compareTo(no.palavra) > 0) {
+            if (no.direita == null) {
+                no.direita = new No(palavra, linha);
+                no.fatBal--;
+            } else {
+                no.direita = add(palavra, linha, no.direita);
+                if (no.overbalance) no.reBalance();
+            }
+        } else {
+            no.setLinha(linha);
+        }
+        no = balancear(no);
+        no.overbalance = (no.fatBal != 0);
+        return no;
     }
 
     //  Se Fb = 2
@@ -69,46 +80,41 @@ public class Arvore {
     //      Se não
     //          RED
 
-    private No balanciamento(No raiz) {
-        if (raiz.fatBal == 2) {
-            if (raiz.esquerda.fatBal > 0) {
-                System.out.println("RDS");
-                return RDS(raiz);
-            } else {
-                System.out.println("RDD");
-                return RDD(raiz);
+    private No balancear(No no) {
+        if (no.fatBal == 2) {
+            if (no.esquerda.fatBal <= 0) {
+                no.esquerda = res(no.esquerda);
             }
-        } else if (raiz.fatBal == -2) {
-            if (raiz.direita.fatBal <= 0) {
-                System.out.println("RES");
-                return RES(raiz);
-            } else {
-                System.out.println("RED");
-                return RED(raiz);
+            return rds(no);
+        } else if (no.fatBal == -2) {
+            if (no.direita.fatBal > 0) {
+                no.direita = rds(no.direita);
             }
+            return res(no);
         }
-        return raiz;
+
+        //  RED = RDS + RES
+        //  RDD = RES + RDS
+        return no.reBalance();
     }
 
-    private No RDS(No raiz) {
-        No esquerda = raiz.esquerda;
-        No direitaEsquerda = esquerda.direita;
+    private No rds(No no) {
+        No esquerda = no.esquerda;
 
-        esquerda.direita = raiz;
-        raiz.esquerda = direitaEsquerda;
+        no.esquerda = esquerda.direita;
+        esquerda.direita = no;
 
-        raiz.reBalance();
+        no.reBalance();
         esquerda.reBalance();
 
         return esquerda;
     }
 
-    private No RES(No raiz) {
+    private No res(No raiz) {
         No direita = raiz.direita;
-        No esquerdaDireita = direita.esquerda;
 
+        raiz.direita = direita.esquerda;
         direita.esquerda = raiz;
-        raiz.direita = esquerdaDireita;
 
         raiz.reBalance();
         direita.reBalance();
@@ -116,37 +122,16 @@ public class Arvore {
         return direita;
     }
 
-    private No RDD(No raiz) {
-        raiz.esquerda = RES(raiz.esquerda);
-        return RDS(raiz);
+    public boolean contains(String palavra) {
+        return raiz != null && contains(palavra, raiz);
     }
 
-    private No RED(No raiz) {
-        raiz.direita = RDS(raiz.direita);
-        return RES(raiz);
-    }
+    private boolean contains(String palavra, No raiz) {
+        if (Objects.equals(palavra, raiz.palavra)) return true;
 
-    //  RED = RDS + RES
-    //  RDD = RES + RDS
+        if (palavra.compareTo(raiz.palavra) < 0) return raiz.esquerda != null && contains(palavra, raiz.esquerda);
 
-//    private String min(No raiz) {
-//        return (raiz.esquerda == null) ? raiz.palavra : min(raiz.esquerda);
-//    }
-//
-//    private String max(No raiz) {
-//        return (raiz.direita == null) ? raiz.palavra : max(raiz.direita);
-//    }
-
-    public boolean contains(String element) {
-        return raiz != null && contains(element, raiz);
-    }
-
-    private boolean contains(String element, No raiz) {
-        if (Objects.equals(element, raiz.palavra)) return true;
-
-        if (element.compareTo(raiz.palavra) < 0) return raiz.esquerda != null && contains(element, raiz.esquerda);
-
-        if (element.compareTo(raiz.palavra) > 0) return raiz.direita != null && contains(element, raiz.direita);
+        if (palavra.compareTo(raiz.palavra) > 0) return raiz.direita != null && contains(palavra, raiz.direita);
 
         return false;
     }
@@ -160,6 +145,17 @@ public class Arvore {
         if (raiz.esquerda != null) str += show(raiz.esquerda);
         str += raiz + "\n";
         if (raiz.direita != null) str += show(raiz.direita);
+        return str;
+    }
+
+    private String see(No raiz) {
+        if (raiz == null) return null;
+        return "(" + see(raiz.esquerda) + " <- Raiz(" + raiz.palavra + raiz.fatBal + ") -> " + see(raiz.direita) + ")";
+    }
+
+    public String see() {
+        String str =see(raiz);
+        System.out.println(str);
         return str;
     }
 }

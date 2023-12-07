@@ -5,6 +5,7 @@ import br.gbrl.arvore.Arvore;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 public class TabelaHash {
     private final Arvore[] tabela;
@@ -27,7 +28,9 @@ public class TabelaHash {
     }
 
     public void add(String[] elements, int linha) {
-        for (String element : elements) add(element.toLowerCase(), linha, true);
+        for (String element : elements) {
+            if (!Objects.equals(element, "")) add(element.toLowerCase(), linha, true);
+        }
     }
 
     private boolean contains(String element) {
